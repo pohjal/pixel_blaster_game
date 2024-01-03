@@ -3,9 +3,11 @@ import Enemy from "./Enemy.js";
 const health = 1;
 const speed = 1;
 
+// this is the class where the
+
 export default class KolmioEnemy extends Enemy {
-  constructor(x, y, color) {
-    super(x, y, color, health);
+  constructor(x, y, color, shape) {
+    super(x, y, color, health, shape);
     this.speed = speed;
   }
 
@@ -23,18 +25,5 @@ export default class KolmioEnemy extends Enemy {
       this.x += directionX * enemySpeed;
       this.y += directionY * enemySpeed;
     }
-  }
-
-  collideWith(sprite) {
-    if (
-      this.x < sprite.x + sprite.width &&
-      this.x + this.width > sprite.x &&
-      this.y < sprite.y + sprite.height &&
-      this.y + this.height > sprite.y
-    ) {
-      this.takeDamage();
-      return true;
-    }
-    return false;
   }
 }

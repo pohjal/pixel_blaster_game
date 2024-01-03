@@ -2,6 +2,7 @@ import Player from "./Player.js";
 import Enemy from "./Enemy.js";
 import BulletController from "./BulletController.js";
 import KolmioEnemy from "./KolmioEnemy.js";
+import shooterEnemy from "./Shooter.js";
 
 const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
@@ -18,23 +19,28 @@ const player = new Player(
 );
 
 const enemies = [
-  new Enemy(50, 20, "green", 5),
-  new Enemy(150, 20, "red", 5),
-  new Enemy(250, 20, "gold", 2),
-  new Enemy(350, 20, "green", 2),
-  new Enemy(450, 20, "gold", 10),
-  new Enemy(50, 100, "green", 5),
-  new Enemy(150, 100, "red", 5),
-  new Enemy(250, 100, "gold", 2),
-  new Enemy(750, 100, "green", 2),
-  new Enemy(450, 100, "gold", 20),
-  new KolmioEnemy(850, 100, "green", 2),
-  new KolmioEnemy(850, 100, "gold", 20),
+  new Enemy(50, 20, "green", 5, "rectangle"),
+  new Enemy(150, 20, "red", 5, "rectangle"),
+  new Enemy(250, 20, "gold", 2, "triangle"),
+  new Enemy(350, 20, "green", 2, "rectangle"),
+  new Enemy(450, 20, "gold", 10, "triangle"),
+  new Enemy(50, 100, "green", 5, "triangle"),
+  new Enemy(150, 100, "red", 5, "circle"),
+  new Enemy(250, 100, "gold", 2, "circle"),
+  new Enemy(750, 100, "green", 2, "triangle"),
+  new Enemy(450, 100, "gold", 20, "circle"),
+  new KolmioEnemy(850, 100, "green", 2, "circle"),
+  new KolmioEnemy(850, 100, "gold", 20, "circle"),
 ];
 
 const kolmioEnemies = [
-  new KolmioEnemy(200, 100, "green"),
-  new KolmioEnemy(200, 200, "gold"),
+  new KolmioEnemy(200, 100, "green", "triangle"),
+  new KolmioEnemy(200, 200, "gold", "circle"),
+];
+
+const shooterEnemies = [
+  new shooterEnemy(350, 20, "green", 2, "rectangle", canvas, ctx),
+  new shooterEnemy(550, 40, "green", 2, "rectangle", canvas, ctx),
 ];
 
 function gameLoop() {
@@ -43,6 +49,23 @@ function gameLoop() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   bulletController.draw(ctx);
   player.draw(ctx);
+  let playerPosition = player.getPosition();
+
+  shooterEnemies.forEach((shooterEnemy) => {
+    shooterEnemy.shoot(playerPosition[1], playerPosition[0]);
+    shooterEnemy.attack(playerPosition[1], playerPosition[0], 1);
+    shooterEnemy.draw(ctx);
+    shooterEnemy.gun.draw(ctx);
+  });
+
+  shooterEnemies.forEach((shooterEnemy) => {
+    if (bulletController.collideWith(shooterEnemy)) {
+      if (shooterEnemy.health <= 0) {
+        const index = enemies.indexOf(shooterEnemy);
+        shooterEnemies.splice(index, 1);
+      }
+    }
+  });
 
   kolmioEnemies.forEach((kolmioEnemy) => {
     if (kolmioEnemy.collideWith(player)) {
@@ -72,7 +95,6 @@ function gameLoop() {
         enemies.splice(index, 1);
       }
     } else {
-      let playerPosition = player.getPosition();
       enemy.draw(ctx);
     }
   });
