@@ -7,7 +7,8 @@ export default class Player {
     this.height = 50;
     this.speed = 4;
     this.health = 20;
-    this.ctx = ctx;
+    this.isDamaged = false;
+    this.damageTime = 0;
 
     document.body.addEventListener("keyup", this.keyUp);
     document.body.addEventListener("keydown", this.keyDown);
@@ -16,14 +17,22 @@ export default class Player {
   draw(ctx) {
     this.move();
 
-    if (this.health > 0) {
+    if (this.isDamaged) {
+      this.drawDamage(ctx);
+      this.damageTime--;
+      if (this.damageTime <= 0) {
+        this.isDamaged = false;
+      }
+    } else if (this.health > 0) {
       ctx.strokeStyle = "yellow";
       ctx.strokeRect(this.x, this.y, this.width, this.height);
       ctx.fillStyle = "black";
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
+
     this.shoot();
   }
+
   drawDamage(ctx) {
     this.move();
 
@@ -101,9 +110,15 @@ export default class Player {
     return [this.y, this.x];
   }
 
+  //   takeDamage(damage) {
+  //     this.health -= damage;
+  //     this.drawDamage(this.ctx);
+  //   }
+
   takeDamage(damage) {
     this.health -= damage;
-    this.drawDamage(this.ctx);
+    this.isDamaged = true;
+    this.damageTime = 15; // Duration for showing damage effect
   }
 
   //   boundaryCheck(canvas) {
