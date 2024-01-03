@@ -40,7 +40,7 @@ const kolmioEnemies = [
 
 const shooterEnemies = [
   new shooterEnemy(350, 20, "green", 2, "rectangle", canvas, ctx),
-  new shooterEnemy(550, 40, "green", 2, "rectangle", canvas, ctx),
+  new shooterEnemy(550, 40, "yellow", 2, "rectangle", canvas, ctx),
 ];
 
 function gameLoop() {

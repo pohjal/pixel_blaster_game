@@ -46,12 +46,23 @@ export default class Player {
 
   shoot() {
     if (this.shootPressed) {
-      const speed = 5;
-      const delay = 7;
+      const bulletSpeed = 5; // or any other value you've been using
+      const velocityX = 0; // No horizontal movement if shooting straight up or down
+      const velocityY = -bulletSpeed; // Negative for shooting upwards
       const damage = 1;
+      const delay = 7; // Shooting frequency
+
       const bulletX = this.x + this.width / 2;
       const bulletY = this.y;
-      this.bulletController.shoot(bulletX, bulletY, speed, damage, delay);
+
+      this.bulletController.shoot(
+        bulletX,
+        bulletY,
+        velocityX,
+        velocityY,
+        damage,
+        delay
+      );
     }
   }
 

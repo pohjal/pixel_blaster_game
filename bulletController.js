@@ -8,13 +8,11 @@ export default class BulletController {
     this.canvas = canvas;
   }
 
-  shoot(x, y, speed, damage, delay) {
+  shoot(x, y, velocityX, velocityY, damage, delay) {
     if (this.timerTillNextBullet <= 0) {
-      this.bullets.push(new Bullet(x, y, speed, damage));
-
+      this.bullets.push(new Bullet(x, y, velocityX, velocityY, damage));
       this.timerTillNextBullet = delay;
     }
-
     this.timerTillNextBullet--;
   }
 
