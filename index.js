@@ -1,95 +1,89 @@
+import Player from "./Player.js";
+import Enemy from "./Enemy.js";
+import BulletController from "./BulletController.js";
+import KolmioEnemy from "./KolmioEnemy.js";
+
 const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
+const speed = 1;
 
-let x = 100;
-let y = 100;
-let radius = 25;
-let speed = 10;
+canvas.width = 700;
+canvas.height = 600;
+const bulletController = new BulletController(canvas);
 
-let downPressed = false;
-let upPressed = false;
-let leftPressed = false;
-let rightPressed = false;
+const player = new Player(
+  canvas.width / 2.2,
+  canvas.height / 1.3,
+  bulletController,
+  ctx
+);
 
-function drawGame() {
-  requestAnimationFrame(drawGame);
-  clearScreen();
-  inputs();
-  boyndryCheck();
-  drawPlayer();
-}
-function inputs() {
-  if (downPressed) {
-    y = y + speed;
-  }
-  if (upPressed) {
-    y = y - speed;
-  }
-  if (leftPressed) {
-    x = x - speed;
-  }
-  if (rightPressed) {
-    x = x + speed;
-  }
-}
+const enemies = [
+  new Enemy(50, 20, "green", 5),
+  new Enemy(150, 20, "red", 5),
+  new Enemy(250, 20, "gold", 2),
+  new Enemy(350, 20, "green", 2),
+  new Enemy(450, 20, "gold", 10),
+  new Enemy(50, 100, "green", 5),
+  new Enemy(150, 100, "red", 5),
+  new Enemy(250, 100, "gold", 2),
+  new Enemy(750, 100, "green", 2),
+  new Enemy(450, 100, "gold", 20),
+  new KolmioEnemy(850, 100, "green", 2),
+  new KolmioEnemy(850, 100, "gold", 20),
+];
 
-function boyndryCheck() {
-  if (y < radius) {
-    y = radius;
-  }
-  if (x < radius) {
-    x = radius;
-  }
+const kolmioEnemies = [
+  new KolmioEnemy(200, 100, "green"),
+  new KolmioEnemy(200, 200, "gold"),
+];
 
-  if (y > canvas.height - radius) {
-    y = canvas.height - radius;
-  }
-  if (x > canvas.width - radius) {
-    x = canvas.width - radius;
-  }
-}
-function clearScreen() {
-  ctx.fillStyle = "green";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-function drawPlayer() {
+function gameLoop() {
+  setCommonStyle();
   ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  bulletController.draw(ctx);
+  player.draw(ctx);
+
+  kolmioEnemies.forEach((kolmioEnemy) => {
+    if (kolmioEnemy.collideWith(player)) {
+      player.takeDamage(1);
+      const index = kolmioEnemies.indexOf(kolmioEnemy);
+      kolmioEnemies.splice(index, 1);
+    }
+  });
+
+  kolmioEnemies.forEach((kolmioEnemy) => {
+    if (bulletController.collideWith(kolmioEnemy)) {
+      if (kolmioEnemy.health <= 0) {
+        const index = enemies.indexOf(kolmioEnemy);
+        kolmioEnemies.splice(index, 1);
+      }
+    } else {
+      let playerPosition = player.getPosition();
+      kolmioEnemy.attack(playerPosition[1], playerPosition[0], 1);
+      kolmioEnemy.draw(ctx);
+    }
+  });
+
+  enemies.forEach((enemy) => {
+    if (bulletController.collideWith(enemy)) {
+      if (enemy.health <= 0) {
+        const index = enemies.indexOf(enemy);
+        enemies.splice(index, 1);
+      }
+    } else {
+      let playerPosition = player.getPosition();
+      enemy.draw(ctx);
+    }
+  });
 }
 
-function keyDown(event) {
-  if (event.keyCode == 40) {
-    downPressed = true;
-  }
-  if (event.keyCode == 39) {
-    rightPressed = true;
-  }
-  if (event.keyCode == 38) {
-    upPressed = true;
-  }
-  if (event.keyCode == 37) {
-    leftPressed = true;
-  }
+function setCommonStyle() {
+  ctx.shadowColor = "#d53";
+  ctx.shadowBlur = 20;
+  ctx.lineJoin = "bevel";
+  ctx.lineWidth = 5;
 }
 
-function keyUp(event) {
-  if (event.keyCode == 40) {
-    downPressed = false;
-  }
-  if (event.keyCode == 39) {
-    rightPressed = false;
-  }
-  if (event.keyCode == 38) {
-    upPressed = false;
-  }
-  if (event.keyCode == 37) {
-    leftPressed = false;
-  }
-}
-document.body.addEventListener("keyup", keyUp);
-document.body.addEventListener("keydown", keyDown);
-
-drawGame();
+setInterval(gameLoop, 1000 / 60);
